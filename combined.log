@@ -1,0 +1,4 @@
+{"level":"info","message":"Server is running on port 5002","timestamp":"2024-10-23T12:55:49.136Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2024-10-23T12:55:49.654Z"}
+{"error":"listen EADDRINUSE: address already in use :::5002","level":"error","message":"Uncaught Exception","timestamp":"2024-10-23T13:02:53.592Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2024-10-23T13:02:54.264Z"}

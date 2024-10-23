@@ -7,26 +7,18 @@ const jwt = require('jsonwebtoken');
 const winston = require('winston');
 const path = require('path');
 
-// 在其他中间件之后，路由之前添加
-app.use(express.static(path.join(__dirname, 'build')));
-
-// 在所有其他路由之后添加
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
 dotenv.config();
+
+const app = express();
+
+app.use(cors({
+  origin: process.env.REACT_APP_FRONTEND_URL || 'http://localhost:3000'
+}));
+app.use(express.json());
 
 // 配置 logger
 const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
-  ],
+  // ... logger 配置保持不变
 });
 
 if (process.env.NODE_ENV !== 'production') {
@@ -35,19 +27,16 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
-const app = express();
-
-app.use(cors({
-  origin: 'http://localhost:3002'
-}));
-app.use(express.json());
-
-const PORT = process.env.PORT || 5002;
-
-// 连接到 MongoDB
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+// 将 MongoDB 连接移到这里
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => logger.info('Connected to MongoDB'))
-  .catch(err => logger.error('Could not connect to MongoDB', { error: err.message }));
+  .catch(err => {
+    logger.error('Could not connect to MongoDB', { error: err.message });
+  });
+
+const PORT = process.env.PORT || 5004;
+
+// ... 其余代码保持不变
 
 // 用户模型
 const userSchema = new mongoose.Schema({
@@ -56,6 +45,25 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
+
+// 受保护的路由
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (token == null) {
+    logger.warn('Access attempt without token');
+    return res.sendStatus(401);
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      logger.warn('Invalid token used for authentication');
+      return res.sendStatus(403);
+    }
+    req.user = user;
+    next();
+  });
+};
 
 // 注册路由
 app.post('/api/register', async (req, res) => {
@@ -95,25 +103,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// 受保护的路由
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (token == null) {
-    logger.warn('Access attempt without token');
-    return res.sendStatus(401);
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      logger.warn('Invalid token used for authentication');
-      return res.sendStatus(403);
-    }
-    req.user = user;
-    next();
-  });
-};
-
 app.get('/api/protected', authenticateToken, (req, res) => {
   logger.info(`Protected route accessed by user ID: ${req.user.userId}`);
   res.json({ message: 'This is a protected route', userId: req.user.userId });
@@ -135,6 +124,27 @@ app.get('/api/user', authenticateToken, async (req, res) => {
   }
 });
 
+// 添加套利路由
+app.get('/api/arbitrage', authenticateToken, async (req, res) => {
+  try {
+    // 这里应该是您的套利逻辑
+    const arbitrageData = [
+      { exchange1: 'Binance', exchange2: 'Coinbase', profitPercentage: 1.5 },
+      { exchange1: 'Kraken', exchange2: 'Bitfinex', profitPercentage: 0.8 },
+    ];
+    res.json(arbitrageData);
+  } catch (error) {
+    logger.error('Error fetching arbitrage data', { error: error.message });
+    res.status(500).json({ message: 'Error fetching arbitrage data', error: error.message });
+  }
+});
+   // 静态文件服务
+   app.use(express.static(path.join(__dirname, 'build')));
+
+   // 通配符路由
+   app.get('*', (req, res) => {
+     res.sendFile(path.join(__dirname, 'build', 'index.html'));
+   });
 app.listen(PORT, (err) => {
   if (err) {
     logger.error('Error starting server', { error: err.message });

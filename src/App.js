@@ -1,58 +1,39 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Layout from './components/layout';
 import Login from './components/Login';
 import Register from './components/Register';
 import UserProfile from './components/UserProfile';
+import Dashboard from './components/Dashboard';
 import axios from 'axios';
 
 function App() {
-  const [message, setMessage] = useState('Loading...');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/protected`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setMessage(response.data.message);
-          setIsLoggedIn(true);
-        } else {
-          setMessage('Please log in');
-        }
-      } catch (error) {
-        console.error('Fetch error:', error);
-        setMessage('Error: ' + error.message);
-        setIsLoggedIn(false);
-      }
-    };
-
-    fetchData();
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+    }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
-    setMessage('Please log in');
   };
 
   return (
-    <div className="App">
-      <h1>Welcome to My React App</h1>
-      {isLoggedIn ? (
-        <>
-          <p>{message}</p>
-          <UserProfile />
-          <button onClick={handleLogout}>Logout</button>
-        </>
-      ) : (
-        <>
-          <Login setIsLoggedIn={setIsLoggedIn} />
-          <Register />
-        </>
-      )}
-    </div>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
+          <Route path="/profile" element={isLoggedIn ? <UserProfile /> : <Navigate to="/login" />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
