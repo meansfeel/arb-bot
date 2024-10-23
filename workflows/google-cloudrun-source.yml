@@ -6,7 +6,7 @@ on:
       - main  # 或者您的主分支名称
 
 env:
-  PROJECT_ID: your-project-id  # 替换为您的 Google Cloud 项目 ID
+  PROJECT_ID: continual-modem-381615  # 替换为您的 Google Cloud 项目 ID
   SERVICE_NAME: arb-bot  # 替换为您想要的服务名称
   REGION: us-central1  # 替换为您想要部署的区域
 
