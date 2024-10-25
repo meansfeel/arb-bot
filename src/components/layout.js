@@ -5,19 +5,24 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { AuthContext } from '../context/AuthContext';
-import ConnectWallet from './ConnectWallet'; // 导入 ConnectWallet 组件
+import ConnectWallet from './ConnectWallet';
+import { useTheme } from '@mui/material/styles';
 
-function Layout({ children }) {
+function Layout({ children, toggleTheme }) {
   const { isLoggedIn, logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const isAdmin = user && user.role === 'admin'; // 假设用户对象中有一个 role 字段
+  const isAdmin = user && user.role === 'admin';
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -36,6 +41,7 @@ function Layout({ children }) {
                 <Button color="inherit" component={RouterLink} to="/admin">Admin</Button>
               )}
               <Button color="inherit" onClick={handleLogout}>Logout</Button>
+              <ConnectWallet />
             </>
           ) : (
             <>
@@ -43,7 +49,9 @@ function Layout({ children }) {
               <Button color="inherit" component={RouterLink} to="/register">Register</Button>
             </>
           )}
-          <ConnectWallet /> {/* 在导航栏中添加 ConnectWallet 组件 */}
+          <IconButton sx={{ ml: 1 }} onClick={toggleTheme} color="inherit">
+            {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Box component="main" sx={{ p: 3, flexGrow: 1 }}>

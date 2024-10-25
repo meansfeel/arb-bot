@@ -1,29 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, Paper, Button, Grid } from '@mui/material';
+import { Typography, Box, Paper, Grid, Button } from '@mui/material';
+import TraderForm from './TraderForm';
 
 function AutoTrader() {
   const [trades, setTrades] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [tradeInfo, setTradeInfo] = useState(null);
 
   useEffect(() => {
-    if (isRunning) {
+    if (isRunning && tradeInfo) {
       const interval = setInterval(() => {
-        // 模拟获取交易数据
         const newTrade = {
           id: trades.length + 1,
           action: Math.random() > 0.5 ? 'Buy' : 'Sell',
-          amount: (Math.random() * 10).toFixed(2),
+          amount: (Math.random() * parseFloat(tradeInfo.amount)).toFixed(2),
           price: (Math.random() * 1000).toFixed(2),
-          timestamp: new Date().toLocaleTimeString()
+          timestamp: new Date().toLocaleTimeString(),
+          coin: tradeInfo.coin,
+          chain: tradeInfo.chain
         };
         setTrades((prevTrades) => [newTrade, ...prevTrades]);
       }, 2000);
 
       return () => clearInterval(interval);
     }
-  }, [isRunning, trades]);
+  }, [isRunning, trades, tradeInfo]);
 
-  const handleStart = () => {
+  const handleSubmit = (formData) => {
+    console.log('Auto trade started:', formData);
+    setTradeInfo(formData);
     setIsRunning(true);
   };
 
@@ -37,23 +42,30 @@ function AutoTrader() {
         <Typography variant="h4" component="h1" gutterBottom>
           Auto Trader
         </Typography>
-        <Button variant="contained" color="primary" onClick={handleStart} disabled={isRunning}>
-          Start Trading
-        </Button>
-        <Button variant="contained" color="secondary" onClick={handleStop} disabled={!isRunning} sx={{ ml: 2 }}>
-          Stop Trading
-        </Button>
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          {trades.map((trade) => (
-            <Grid item xs={12} key={trade.id}>
-              <Paper sx={{ p: 2 }}>
-                <Typography variant="body1">
-                  {trade.timestamp} - {trade.action} {trade.amount} at ${trade.price}
-                </Typography>
-              </Paper>
+        <TraderForm onSubmit={handleSubmit} type="auto" />
+        {isRunning && (
+          <Button variant="contained" color="secondary" onClick={handleStop} sx={{ mt: 2 }}>
+            Stop Trading
+          </Button>
+        )}
+        {isRunning && tradeInfo && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Auto Trades for {tradeInfo.coin} on {tradeInfo.chain}
+            </Typography>
+            <Grid container spacing={2}>
+              {trades.map((trade) => (
+                <Grid item xs={12} key={trade.id}>
+                  <Paper sx={{ p: 2 }}>
+                    <Typography variant="body1">
+                      {trade.timestamp} - {trade.action} {trade.amount} {tradeInfo.coin} at ${trade.price}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
+          </Box>
+        )}
       </Paper>
     </Box>
   );

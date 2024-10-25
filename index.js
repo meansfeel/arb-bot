@@ -6,6 +6,21 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const winston = require('winston');
 const path = require('path');
+
+dotenv.config();
+
+// 用户模型定义（移到顶部）
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  isApproved: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const User = mongoose.model('User', userSchema);
+
+// isAdmin 中间件
 const isAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.userId);
@@ -18,7 +33,6 @@ const isAdmin = async (req, res, next) => {
     res.status(500).json({ message: 'Error checking admin status', error: error.message });
   }
 };
-dotenv.config();
 
 const app = express();
 
@@ -27,6 +41,18 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// 添加 X-Content-Type-Options 头部
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
+// 添加 Cache-Control 头部
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  next();
+});
 
 // 配置 logger
 const logger = winston.createLogger({
@@ -50,18 +76,9 @@ mongoose.connect(process.env.MONGODB_URI)
     logger.error('Could not connect to MongoDB', { error: err.message });
   });
 
-const PORT = process.env.PORT || 5004;
+const PORT = process.env.PORT || 5006;
 
 // ... 其余代码保持不变
-
-// 用户模型
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' }
-});
-
-const User = mongoose.model('User', userSchema);
 
 // 受保护的路由
 const authenticateToken = (req, res, next) => {
@@ -70,14 +87,12 @@ const authenticateToken = (req, res, next) => {
   console.log('Received token:', token);
   if (token == null) {
     console.log('No token provided');
-    logger.warn('Access attempt without token');
     return res.sendStatus(401);
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
       console.log('Invalid token:', err);
-      logger.warn('Invalid token used for authentication');
       return res.sendStatus(403);
     }
     console.log('Token verified, user:', user);
@@ -86,7 +101,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// 注册路由
+// 注册路
 app.post('/api/register', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -149,19 +164,37 @@ app.post('/api/login', async (req, res) => {
 });
 
 // 添加套利路由
-app.get('/api/arbitrage', authenticateToken, async (req, res) => {
-  try {
-    // 这里应该是您的套利逻辑
-    const arbitrageData = [
-      { exchange1: 'Binance', exchange2: 'Coinbase', profitPercentage: 1.5 },
-      { exchange1: 'Kraken', exchange2: 'Bitfinex', profitPercentage: 0.8 },
-    ];
-    res.json(arbitrageData);
-  } catch (error) {
-    logger.error('Error fetching arbitrage data', { error: error.message });
-    res.status(500).json({ message: 'Error fetching arbitrage data', error: error.message });
-  }
+app.get('/api/arbitrage', authenticateToken, (req, res) => {
+  console.log('Received request for arbitrage data');
+  const arbitrageData = [
+    { exchange1: 'Binance', exchange2: 'Coinbase', profitPercentage: 1.5 },
+    { exchange1: 'Kraken', exchange2: 'Bitfinex', profitPercentage: 0.8 },
+  ];
+  res.json(arbitrageData);
 });
+
+// 添加交易所路由
+app.get('/api/exchanges', authenticateToken, (req, res) => {
+  console.log('Received request for exchanges data');
+  const exchangesData = [
+    { name: 'Binance', type: 'CEX', lastUpdated: new Date().toISOString() },
+    { name: 'Uniswap', type: 'DEX', lastUpdated: new Date().toISOString() },
+  ];
+  res.json(exchangesData);
+});
+
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
+// 在其他中间件之后，路由之前添加这个中间件
+app.use((req, res, next) => {
+  // 设置 Cache-Control 头
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  next();
+});
+
    // 静态文件服务
    app.use(express.static(path.join(__dirname, 'build')));
 
@@ -169,6 +202,11 @@ app.get('/api/arbitrage', authenticateToken, async (req, res) => {
    app.get('*', (req, res) => {
      res.sendFile(path.join(__dirname, 'build', 'index.html'));
    });
+
+app.use((req, res, next) => {
+  res.status(404).send("Sorry, that route doesn't exist.");
+});
+
 app.listen(PORT, (err) => {
   if (err) {
     logger.error('Error starting server', { error: err.message });
@@ -201,55 +239,47 @@ app.post('/api/contract/execute', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error executing transaction', error: error.message });
   }
 });
-// 获取所有用户
-// 示例：获取用户信息的路由
-app.get('/api/user', authenticateToken, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.userId).select('-password');
-    if (!user) {
-      logger.warn(`User not found for ID: ${req.user.userId}`);
-      return res.status(404).json({ message: 'User not found' });
-    }
-    logger.info(`User data retrieved for ID: ${req.user.userId}`);
-    res.json(user);
-  } catch (error) {
-    logger.error('Error fetching user data', { error: error.message });
-    res.status(500).json({ message: 'Error fetching user data', error: error.message });
-  }
-});
 
-// 示例：更新用户信息的路由
-app.put('/api/user', authenticateToken, async (req, res) => {
-  try {
-    const { username, email } = req.body;
-    const user = await User.findByIdAndUpdate(req.user.userId, { username, email }, { new: true }).select('-password');
-    if (!user) {
-      logger.warn(`User not found for ID: ${req.user.userId}`);
-      return res.status(404).json({ message: 'User not found' });
-    }
-    logger.info(`User data updated for ID: ${req.user.userId}`);
-    res.json(user);
-  } catch (error) {
-    logger.error('Error updating user data', { error: error.message });
-    res.status(500).json({ message: 'Error updating user data', error: error.message });
-  }
-});
-
-// 删除用户
-app.delete('/api/admin/users/:id', authenticateToken, isAdmin, async (req, res) => {
-  try {
-    const userId = req.params.id;
-    await User.findByIdAndDelete(userId);
-    res.json({ message: 'User deleted successfully' });
-  } catch (error) {
-    logger.error('Error deleting user', { error: error.message });
-    res.status(500).json({ message: 'Error deleting user', error: error.message });
-  }
-});
 process.on('uncaughtException', (err) => {
   logger.error('Uncaught Exception', { error: err.message });
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection', { reason: reason.message, promise });
+});
+
+// 添加新的路由来获取市场价格数据
+app.get('/api/market-prices', authenticateToken, (req, res) => {
+  console.log('Received request for market prices data');
+  const marketPricesData = {
+    cex: [
+      { exchange: 'Binance', symbol: 'BTC/USDT', price: 45000 },
+      { exchange: 'Coinbase', symbol: 'ETH/USD', price: 3000 },
+      { exchange: 'Kraken', symbol: 'XRP/USD', price: 0.5 }
+    ],
+    dex: [
+      { exchange: 'Uniswap', symbol: 'ETH/USDT', price: 3005 },
+      { exchange: 'SushiSwap', symbol: 'LINK/ETH', price: 0.01 },
+      { exchange: 'PancakeSwap', symbol: 'CAKE/BNB', price: 0.05 }
+    ]
+  };
+  res.json(marketPricesData);
+});
+
+// 在现有的路由之后添加新的路由
+
+// 添加机器人搬砖套利数据路由
+app.get('/api/arbitrage-bot', authenticateToken, (req, res) => {
+  console.log('Received request for arbitrage bot data');
+  const arbitrageBotData = {
+    cex: [
+      { from: 'Binance', to: 'Coinbase', pair: 'BTC/USDT', profit: '0.5%', amount: '0.1 BTC', timestamp: new Date().toISOString() },
+      { from: 'Kraken', to: 'Bitfinex', pair: 'ETH/USD', profit: '0.3%', amount: '2 ETH', timestamp: new Date().toISOString() }
+    ],
+    dex: [
+      { from: 'Uniswap', to: 'SushiSwap', pair: 'ETH/USDT', profit: '0.7%', amount: '5 ETH', timestamp: new Date().toISOString() },
+      { from: 'PancakeSwap', to: 'Uniswap', pair: 'LINK/ETH', profit: '0.4%', amount: '100 LINK', timestamp: new Date().toISOString() }
+    ]
+  };
+  res.json(arbitrageBotData);
 });

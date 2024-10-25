@@ -2,38 +2,6 @@
   "name": "arb-bot",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "build": "react-scripts build",
-    "dev": "concurrently \"npm run server\" \"npm run start-frontend\"",
-    "server": "node index.js",
-    "start-frontend": "set PORT=3001 && react-scripts start"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
-    "@mui/icons-material": "^6.1.5",
-    "@mui/material": "^6.1.5",
-    "axios": "^1.7.7",
-    "bcrypt": "^5.1.1",
-    "cors": "^2.8.5",
-    "docker": "^1.0.0",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.10.0",
-    "mongoose": "^8.7.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.27.0",
-    "react-scripts": "^5.0.1",
-    "web3": "^4.14.0",
-    "winston": "^3.15.0"
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -46,8 +14,63 @@
       "last 1 safari version"
     ]
   },
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.5",
+    "@mui/material": "^6.1.5",
+    "@walletconnect/web3-provider": "^1.8.0",
+    "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "docker": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.4",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.10.0",
+    "mongoose": "^8.7.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.27.0",
+    "react-scripts": "^5.0.1",
+    "web3": "^4.14.0",
+    "web3modal": "^1.9.12",
+    "winston": "^3.15.0"
+  },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "concurrently": "^9.0.1"
+    "@craco/craco": "^7.1.0",
+    "assert": "^2.1.0",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "concurrently": "^9.0.1",
+    "crypto-browserify": "^3.12.1",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "process": "^0.11.10",
+    "react-app-rewired": "^2.2.1",
+    "source-map-loader": "^5.0.0",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.4",
+    "util": "^0.12.5"
+  },
+  "browser": {
+    "crypto": false,
+    "stream": false,
+    "http": false,
+    "https": false,
+    "os": false
   }
 }
