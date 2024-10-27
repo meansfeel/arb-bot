@@ -5,10 +5,17 @@
 [submodule "arbitr"]
     path = arbitr
     url = https://github.com/meansfeel/arb-bot.git
+    branch = main
+
+[submodule "frontend"]
+    path = frontend
+    url = https://github.com/meansfeel/frontend-repo.git
+    branch = main
 
 [submodule "backend"]
     path = backend
     url = https://github.com/meansfeel/backend-repo.git
+    branch = main
 
 [core]
     worktree = https://arbitrageboosterbot.com
