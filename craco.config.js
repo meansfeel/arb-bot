@@ -18,25 +18,38 @@ module.exports = {
       };
 
       // 使用 ProvidePlugin
-      webpackConfig.plugins.push(
+      webpackConfig.plugins = [
+        ...webpackConfig.plugins,
         new webpack.ProvidePlugin({
           process: 'process/browser',
           Buffer: ['buffer', 'Buffer'],
-        }),
-      );
+        })
+      ];
 
-      // 添加 resolve.alias
-      webpackConfig.resolve.alias = {
-        ...webpackConfig.resolve.alias,
-        'process/browser': path.resolve(__dirname, 'node_modules/process/browser.js'),
+      // 設置 performance hints
+      webpackConfig.performance = {
+        hints: false,
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000
       };
 
-      const scopePluginIndex = webpackConfig.resolve.plugins.findIndex(
-        ({ constructor }) => constructor && constructor.name === 'ModuleScopePlugin'
-      );
-      webpackConfig.resolve.plugins.splice(scopePluginIndex, 1);
-
       return webpackConfig;
+    }
+  },
+  babel: {
+    presets: [
+      '@babel/preset-env',
+      '@babel/preset-react'
+    ],
+    plugins: [
+      '@babel/plugin-proposal-private-property-in-object'
+    ]
+  },
+  jest: {
+    configure: {
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1'
+      }
     }
   }
 };
