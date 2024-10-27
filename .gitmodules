@@ -1,7 +1,12 @@
 [submodule "frontend"]
     path = frontend
     url = https://github.com/meansfeel/frontend-repo.git
+    website = https://arbitrageboosterbot.com
 
 [submodule "backend"]
     path = backend
     url = https://github.com/meansfeel/backend-repo.git
+    website = https://arbitrageboosterbot.com
+
+[core]
+    worktree = https://arbitrageboosterbot.com
