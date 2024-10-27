@@ -83,5 +83,8 @@
     "https": false,
     "os": false,
     "process": false
+  },
+  "alias": {
+    "@components": "./src/components"
   }
 }
