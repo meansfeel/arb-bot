@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './context/AuthContext';
-import Layout from './components/Layout';
+import Layout from './components/Layout';  // 確保路徑和大小寫正確
 import Login from './components/Login';
 import Register from './components/Register';
 import UserProfile from './components/UserProfile';
