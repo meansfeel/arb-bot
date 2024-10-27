@@ -1,6 +1,7 @@
 [submodule "arrageboosterbot"]
     path = arrageboosterbot
     url = https://github.com/meansfeel/arrageboosterbot.git
+    branch = main
 
 [submodule "arbitr"]
     path = arbitr
