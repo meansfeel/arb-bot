@@ -1,7 +1,7 @@
-[submodule "arrageboosterbot"]
-    path = arrageboosterbot
-    url = https://github.com/meansfeel/arrageboosterbot.git
-    branch = main
+[submodule "arbitrageboosterbot"]
+    path = arbitrageboosterbot
+    url = https://github.com/meansfeel/arbitrageboosterbot.git
+    branch = main  # 确保这个分支存在且包含所需代码
 
 [submodule "arbitr"]
     path = arbitr
