@@ -9,7 +9,7 @@ const path = require('path');
 
 dotenv.config();
 
-// 用户模型定义（移到顶部）
+// 用户模型定义（修改现有的 userSchema）
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -154,6 +154,12 @@ app.post('/api/login', async (req, res) => {
     if (!validPassword) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
+    
+    // 检查用户是否已被批准
+    if (!user.isApproved && user.role !== 'admin') {
+      return res.status(403).json({ message: 'Your account is not approved yet' });
+    }
+    
     const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET);
     console.log('Login successful for user:', username);
     res.json({ token, role: user.role });
@@ -283,3 +289,23 @@ app.get('/api/arbitrage-bot', authenticateToken, (req, res) => {
   };
   res.json(arbitrageBotData);
 });
+
+// 批准或取消批准用户
+app.put('/api/admin/users/:userId/approve', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { isApproved } = req.body;
+    
+    const user = await User.findByIdAndUpdate(userId, { isApproved }, { new: true });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ message: `User ${isApproved ? 'approved' : 'unapproved'} successfully`, user });
+  } catch (error) {
+    logger.error('Error approving/unapproving user', { error: error.message });
+    res.status(500).json({ message: 'Error approving/unapproving user', error: error.message });
+  }
+});
+
