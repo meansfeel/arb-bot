@@ -1,1 +1,7 @@
-https://arbitrageboosterbot.com
+[submodule "frontend"]
+    path = frontend
+    url = https://github.com/meansfeel/frontend-repo.git
+
+[submodule "backend"]
+    path = backend
+    url = https://github.com/meansfeel/backend-repo.git
