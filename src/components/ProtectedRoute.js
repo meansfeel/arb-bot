@@ -1,16 +1,19 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import { CircularProgress } from '@mui/material';
+import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const { isLoggedIn, loading } = useContext(AuthContext);
+  const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <CircularProgress />;
+    return <div>Loading...</div>;
   }
 
-  return isLoggedIn ? children : <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

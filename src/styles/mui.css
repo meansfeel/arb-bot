@@ -1,0 +1,42 @@
+/* MUI 主題覆蓋 */
+.MuiButton-root {
+  text-transform: none !important;
+  font-weight: 500 !important;
+}
+
+.MuiPaper-root {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.MuiAppBar-root {
+  background-color: #1976d2 !important;
+}
+
+.MuiTextField-root {
+  margin: 8px 0 !important;
+}
+
+.MuiDialog-paper {
+  padding: 16px !important;
+}
+
+/* 深色模式適配 */
+[data-theme='dark'] .MuiPaper-root {
+  background-color: #424242 !important;
+  color: #ffffff !important;
+}
+
+[data-theme='dark'] .MuiAppBar-root {
+  background-color: #1565c0 !important;
+}
+
+/* 響應式調整 */
+@media (max-width: 600px) {
+  .MuiContainer-root {
+    padding: 8px !important;
+  }
+  
+  .MuiButton-root {
+    padding: 6px 12px !important;
+  }
+}

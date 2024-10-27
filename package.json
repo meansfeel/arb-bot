@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "cross-env CI=false craco build --verbose",
+    "build": "cross-env CI=false GENERATE_SOURCEMAP=false NODE_ENV=production craco build",
     "test": "craco test",
     "eject": "react-scripts eject"
   },
@@ -26,13 +26,15 @@
   "description": "",
   "dependencies": {
     "@craco/craco": "^7.1.0",
-    "@emotion/react": "^11.13.3",
+    "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.13.0",
-    "@mui/icons-material": "^6.1.5",
-    "@mui/material": "^6.1.5",
+    "@fontsource/roboto": "^5.0.8",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.5",
+    "@mui/system": "^5.13.5",
     "@truffle/hdwallet-provider": "^2.1.15",
     "@walletconnect/web3-provider": "^1.8.0",
-    "axios": "^1.7.7",
+    "axios": "^0.24.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "docker": "^1.0.0",
@@ -42,6 +44,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.10.0",
     "mongoose": "^8.7.2",
+    "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.27.0",
@@ -55,10 +58,9 @@
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@babel/plugin-transform-runtime": "^7.25.9",
     "@babel/preset-env": "^7.22.0",
     "@babel/preset-react": "^7.22.0",
-    "@babel/runtime": "^7.26.0",
+    "@babel/runtime": "^7.22.0",
     "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
@@ -67,12 +69,14 @@
     "crypto-browserify": "^3.12.1",
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "react-app-rewired": "^2.2.1",
     "rimraf": "^6.0.1",
     "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "typescript": "^4.9.5",
     "url": "^0.11.4",
     "util": "^0.12.5"
   },
@@ -86,5 +90,10 @@
   },
   "alias": {
     "@components": "./src/components"
-  }
+  },
+  "resolutions": {
+    "process": "^0.11.10",
+    "axios": "^0.24.0"
+  },
+  "proxy": "http://localhost:4000"
 }

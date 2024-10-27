@@ -36,11 +36,45 @@ const isAdmin = async (req, res, next) => {
 
 const app = express();
 
+// CORS 配置
 app.use(cors({
-  origin: 'https://arbitrageboosterbot.com',
-  credentials: true
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'https://arbitrageboosterbot.com',
+      'http://localhost:3001',
+      'http://localhost:4000'
+    ];
+    // 允許來自允許列表的請求或者沒有 origin 的請求（比如移動應用）
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// 確保路由順序正確
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// API 路由放在靜態文件服務之前
+app.use('/api', require('./routes/api'));
+
+// 添加 OPTIONS 請求處理
+app.options('*', cors());
+
+// 添加請求日誌中間件
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  if (req.method === 'POST') {
+    console.log('Body:', req.body);
+  }
+  next();
+});
 
 // 添加 X-Content-Type-Options 头部
 app.use((req, res, next) => {
@@ -76,7 +110,7 @@ mongoose.connect(process.env.MONGODB_URI)
     logger.error('Could not connect to MongoDB', { error: err.message });
   });
 
-const PORT = process.env.PORT || 5006;
+const PORT = process.env.PORT || 4000;
 
 // ... 其余代码保持不变
 
@@ -133,39 +167,62 @@ app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     console.log('Login attempt:', { username });
-    
-    if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET is not set');
-      return res.status(500).json({ message: 'Server configuration error' });
-    }
 
-    // 检查是否是预设的账号密码
+    // 預設管理員賬戶檢查
     if (username === 'meansfeel123' && password === 'Cs6626719!') {
-      console.log('Using predefined account');
-      const token = jwt.sign({ userId: 'predefined_user', role: 'admin' }, process.env.JWT_SECRET);
-      return res.json({ token, role: 'admin' });
+      console.log('Admin login successful');
+      const token = jwt.sign(
+        { 
+          userId: 'admin_user',
+          role: 'admin',
+          username: 'meansfeel123'
+        }, 
+        process.env.JWT_SECRET || '1234567890',
+        { expiresIn: '7d' }
+      );
+
+      return res.json({
+        token,
+        role: 'admin',
+        message: 'Admin login successful'
+      });
     }
 
+    // 一般用戶登入邏輯
     const user = await User.findOne({ username });
     if (!user) {
+      console.log('User not found:', username);
       return res.status(400).json({ message: 'Invalid username or password' });
     }
+
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
+      console.log('Invalid password for user:', username);
       return res.status(400).json({ message: 'Invalid username or password' });
     }
-    
-    // 检查用户是否已被批准
-    if (!user.isApproved && user.role !== 'admin') {
-      return res.status(403).json({ message: 'Your account is not approved yet' });
-    }
-    
-    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET);
+
+    const token = jwt.sign(
+      { 
+        userId: user._id,
+        role: user.role,
+        username: user.username
+      }, 
+      process.env.JWT_SECRET || '1234567890',
+      { expiresIn: '24h' }
+    );
+
     console.log('Login successful for user:', username);
-    res.json({ token, role: user.role });
+    res.json({ 
+      token, 
+      role: user.role,
+      message: 'Login successful'
+    });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    res.status(500).json({ 
+      message: 'Error logging in', 
+      error: error.message
+    });
   }
 });
 
@@ -189,25 +246,13 @@ app.get('/api/exchanges', authenticateToken, (req, res) => {
   res.json(exchangesData);
 });
 
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
+// 静态文服务
+app.use(express.static(path.join(__dirname, 'build')));
+
+// 所有其他請求返回 index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
-
-// 在其他中间件之后，路由之前添加这个中间件
-app.use((req, res, next) => {
-  // 设置 Cache-Control 头
-  res.setHeader('Cache-Control', 'no-store, max-age=0');
-  next();
-});
-
-   // 静态文件服务
-   app.use(express.static(path.join(__dirname, 'build')));
-
-   // 通配符路由
-   app.get('*', (req, res) => {
-     res.sendFile(path.join(__dirname, 'build', 'index.html'));
-   });
 
 app.use((req, res, next) => {
   res.status(404).send("Sorry, that route doesn't exist.");
@@ -220,10 +265,11 @@ app.listen(PORT, (err) => {
     logger.info(`Server is running on port ${PORT}`);
   }
 });
+
 app.post('/api/contract/execute', authenticateToken, async (req, res) => {
   try {
     const { toAddress, amount } = req.body;
-    const fromAddress = req.user.userId; // 假设用户 ID 是以太坊地址
+    const fromAddress = req.user.userId; // 假户 ID 是以太坊地址
     const privateKey = process.env.PRIVATE_KEY; // 从环境变量中获取私钥
 
     // 创建交易对象
@@ -234,7 +280,7 @@ app.post('/api/contract/execute', authenticateToken, async (req, res) => {
       gas: 2000000
     };
 
-    // 签署交易
+    // 签交易
     const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
 
     // 发送交易
@@ -274,7 +320,7 @@ app.get('/api/market-prices', authenticateToken, (req, res) => {
 
 // 在现有的路由之后添加新的路由
 
-// 添加机器人搬砖套利数据路由
+// 添加机器搬砖套利数据路由
 app.get('/api/arbitrage-bot', authenticateToken, (req, res) => {
   console.log('Received request for arbitrage bot data');
   const arbitrageBotData = {
@@ -307,6 +353,15 @@ app.put('/api/admin/users/:userId/approve', authenticateToken, isAdmin, async (r
     logger.error('Error approving/unapproving user', { error: error.message });
     res.status(500).json({ message: 'Error approving/unapproving user', error: error.message });
   }
+});
+
+// 錯誤處理中間件
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err : {}
+  });
 });
 
 module.exports = app; // 添加這行作為模塊導出
