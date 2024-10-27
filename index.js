@@ -37,7 +37,7 @@ const isAdmin = async (req, res, next) => {
 const app = express();
 
 app.use(cors({
-  origin: process.env.REACT_APP_FRONTEND_URL || 'http://localhost:3001',
+  origin: 'https://arbitrageboosterbot.com',
   credentials: true
 }));
 app.use(express.json());
@@ -308,4 +308,6 @@ app.put('/api/admin/users/:userId/approve', authenticateToken, isAdmin, async (r
     res.status(500).json({ message: 'Error approving/unapproving user', error: error.message });
   }
 });
+
+
 
