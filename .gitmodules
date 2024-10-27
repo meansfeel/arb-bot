@@ -3,11 +3,6 @@
     url = https://github.com/meansfeel/arbitrageboosterbot.git
     branch = main
 
-[submodule "arbitr"]
-    path = arbitr
-    url = https://github.com/meansfeel/arb-bot.git
-    branch = main
-
 [submodule "frontend"]
     path = frontend
     url = https://github.com/meansfeel/frontend-repo.git
