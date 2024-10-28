@@ -21,6 +21,5 @@
 
      # Document that the service listens on port 8080.
      EXPOSE 8080
-    options:
-  default_logs_bucket_behavior: 'REGIONAL_USER_OWNED_BUCKET'
+  
 
