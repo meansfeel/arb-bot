@@ -32,4 +32,4 @@ steps:
 - name: 'gcr.io/cloudbuild/docker'
   args: ['push', 'us-docker.pkg.dev/continual-modem-381615/arbitrageboosterbot/arbitrageboosterbot']
 - name: 'gcr.io/cloudbuild/docker'
-  args: ['build', '-t', 'us-docker.pkg.dev/continual-modem-381615/arbitrageboosterbot/arbitrage
+  args: ['build', '-t', 'us-docker.pkg.dev/continual-modem-381615/arbitrageboosterbot/arbitrageboosterbot']
