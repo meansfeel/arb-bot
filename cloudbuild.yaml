@@ -33,3 +33,7 @@ steps:
   args: ['push', 'us-docker.pkg.dev/continual-modem-381615/arbitrageboosterbot/arbitrageboosterbot']
 - name: 'gcr.io/cloudbuild/docker'
   args: ['build', '-t', 'us-docker.pkg.dev/continual-modem-381615/arbitrageboosterbot/arbitrageboosterbot']
+steps:
+- name: 'gcr.io/cloudbuild/docker'
+  args: ['build', '-t', 'my-image', '.']
+logsBucket: 'gs://your-logs-bucket'
