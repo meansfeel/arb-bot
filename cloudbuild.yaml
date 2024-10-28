@@ -18,14 +18,6 @@
     - 'us-central1'
   images:
   - 'gcr.io/$PROJECT_ID/arbitrageboosterbot:$COMMIT_SHA'
-  steps:
-  - name: 'gcr.io/cloudbuild/docker'
-    args: ['build', '-t', 'my-image', '.']
-  # 指定 logs_bucket
-  logs_bucket: 'continual-modem-381615.appspot.com'
-  # 使用 REGIONAL_USER_OWNED_BUCKET 選項
   options:
-    default_logs_bucket_behavior: 'REGIONAL_USER_OWNED_BUCKET'
-  # 使用 CLOUD_LOGGING_ONLY 選項
-  options:
-    logging: 'CLOUD_LOGGING_ONLY'
+  logging: 'CLOUD_LOGGING_ONLY'  # 或 'NONE'
+
