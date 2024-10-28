@@ -1,78 +1,20 @@
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  name: arbitrageboosterbot
-  namespace: '253991216166'
-  selfLink: /apis/serving.knative.dev/v1/namespaces/253991216166/services/arbitrageboosterbot
-  uid: 48213be3-b0e5-42c7-9661-c91c4eb8c2e8
-  resourceVersion: AAYlgql5nz8
-  generation: 2
-  creationTimestamp: '2024-10-28T05:21:53.823283Z'
-  labels:
-    gcb-trigger-id: f8c5b812-67c9-4680-8332-fec956484356
-    managed-by: gcp-cloud-build-deploy-cloud-run
-    gcb-trigger-region: global
-    cloud.googleapis.com/location: us-central1
-  annotations:
-    serving.knative.dev/creator: meansfeel@gmail.com
-    serving.knative.dev/lastModifier: meansfeel@gmail.com
-    run.googleapis.com/client-name: cloud-console
-    run.googleapis.com/operation-id: e3860c8f-d165-4f7a-b8e4-eff80df54032
-    run.googleapis.com/ingress: all
-    run.googleapis.com/ingress-status: all
-    run.googleapis.com/urls: '["https://arbitrageboosterbot-253991216166.us-central1.run.app","https://arbitrageboosterbot-mdc5rsd2ua-uc.a.run.app"]'
-spec:
-  template:
-    metadata:
-      labels:
-        run.googleapis.com/startupProbeType: Default
-      annotations:
-        autoscaling.knative.dev/maxScale: '100'
-        run.googleapis.com/vpc-access-egress: all-traffic
-        run.googleapis.com/network-interfaces: '[{"network":"default","subnetwork":"default"}]'
-        run.googleapis.com/client-name: cloud-console
-        run.googleapis.com/startup-cpu-boost: 'true'
-    spec:
-      containerConcurrency: 80
-      timeoutSeconds: 300
-      serviceAccountName: 253991216166-compute@developer.gserviceaccount.com
-      containers:
-      - name: placeholder-1
-        image: gcr.io/cloudrun/placeholder
-        ports:
-        - name: http1
-          containerPort: 8080
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 512Mi
-        startupProbe:
-          timeoutSeconds: 240
-          periodSeconds: 240
-          failureThreshold: 1
-          tcpSocket:
-            port: 8080
-  traffic:
-  - percent: 100
-    latestRevision: true
-status:
-  observedGeneration: 2
-  conditions:
-  - type: Ready
-    status: 'True'
-    lastTransitionTime: '2024-10-28T05:22:59.560255Z'
-  - type: ConfigurationsReady
-    status: 'True'
-    lastTransitionTime: '2024-10-28T05:22:58.307164Z'
-  - type: RoutesReady
-    status: 'True'
-    lastTransitionTime: '2024-10-28T05:22:59.521447Z'
-  latestReadyRevisionName: arbitrageboosterbot-00001-mp2
-  latestCreatedRevisionName: arbitrageboosterbot-00001-mp2
-  traffic:
-  - revisionName: arbitrageboosterbot-00001-mp2
-    percent: 100
-    latestRevision: true
-  url: https://arbitrageboosterbot-mdc5rsd2ua-uc.a.run.app
-  address:
-    url: https://arbitrageboosterbot-mdc5rsd2ua-uc.a.run.app
+    steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/arbitrageboosterbot:$COMMIT_SHA', '.']
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/arbitrageboosterbot:$COMMIT_SHA']
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+    - 'run'
+    - 'deploy'
+    - 'arbitrageboosterbot'
+    - '--image'
+    - 'gcr.io/$PROJECT_ID/arbitrageboosterbot:$COMMIT_SHA'
+    - '--region'
+    - 'us-central1'
+  images:
+  - 'gcr.io/$PROJECT_ID/arbitrageboosterbot:$COMMIT_SHA'
