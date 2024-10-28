@@ -24,4 +24,4 @@
     steps:
   - name: 'gcr.io/cloudbuild/docker'
     args: ['build', '-t', 'my-image', '.']
-    logs_bucket: 'my-logs-bucket'
+    logs_bucket: 'hello'
