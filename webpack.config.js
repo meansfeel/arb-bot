@@ -1,9 +1,15 @@
 const webpack = require('webpack');
 const path = require('path');
 
+// webpack.config.js
 module.exports = {
-  // ... 其他配置
-  stats: {
-    warningsFilter: [/Failed to parse source map/],
-  },
-};
+  resolve: {
+    fallback: {
+      "http": require.resolve("stream-http"),
+      "https": require.resolve("https-browserify"),
+      "url": require.resolve("url/"),
+      "stream": require.resolve("stream-browserify")
+    }
+  }
+}
+
