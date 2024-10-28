@@ -21,7 +21,6 @@
 
      # Document that the service listens on port 8080.
      EXPOSE 8080
-    steps:
-  - name: 'gcr.io/cloudbuild/docker'
-    args: ['build', '-t', 'my-image', '.']
-    logs_bucket: 'hello'
+    options:
+  default_logs_bucket_behavior: 'REGIONAL_USER_OWNED_BUCKET'
+
