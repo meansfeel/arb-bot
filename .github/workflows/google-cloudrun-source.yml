@@ -48,7 +48,9 @@ jobs:
       id-token: 'write'
 
     steps:
-      - name: 'Checkout'
+      - name: 'gcr.io/cloudbuild/docker'
+        args: ['build', '-t', 'my-image', '.']
+        logsBucket: 'gs://your-logs-bucket'
         uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
 
       # Configure Workload Identity Federation and generate an access token.
