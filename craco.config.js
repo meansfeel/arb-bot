@@ -2,8 +2,19 @@ const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
-  // 这里可以添加你的 CRACO 配置
   webpack: {
+    configure: {
+      resolve: {
+        fallback: {
+          http: false,
+          https: false,
+          url: false,
+          stream: false
+        }
+      }
+    }
+  }
+}
     configure: (webpackConfig) => {
       // 添加 fallback
       webpackConfig.resolve.fallback = {
