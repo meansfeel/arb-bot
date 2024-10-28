@@ -76,8 +76,3 @@ status:
   url: https://arbitrageboosterbot-mdc5rsd2ua-uc.a.run.app
   address:
     url: https://arbitrageboosterbot-mdc5rsd2ua-uc.a.run.app
-    steps:
-  - name: 'gcr.io/cloudbuild/docker'
-  args: ['build', '-t', 'my-image', '.']
-  logsBucket: 'gs://your-logs-bucket'
-
