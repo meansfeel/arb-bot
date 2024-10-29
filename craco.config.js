@@ -3,6 +3,18 @@ const path = require('path');
 
 module.exports = {
   webpack: {
+    configure: {
+      resolve: {
+        fallback: {
+          http: false,
+          https: false,
+          url: false,
+          stream: false
+        }
+      }
+    }
+  }
+}
     configure: (webpackConfig) => {
       // 添加 node polyfills
       webpackConfig.resolve.fallback = {

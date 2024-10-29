@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-
+const provider = new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/70c0a41eb6214990accaef728b8afaf9');
 const web3 = new Web3(new Web3.providers.HttpProvider(
   `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`
 ));

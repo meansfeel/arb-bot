@@ -1,4 +1,14 @@
+// server.js
 const express = require('express');
+
+app.use(express.static(path.join(__dirname, 'build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+app.listen(port);
+
 const https = require('https');
 const fs = require('fs');
 const mongoose = require('mongoose');
@@ -41,7 +51,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/bot', botRoutes);
 app.use('/api/simulation', simulationRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 // 设置安全审计 cron 作业
 if (process.env.NODE_ENV === 'production') {

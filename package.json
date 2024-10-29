@@ -15,10 +15,15 @@
     ]
   },
   "scripts": {
-    "start": "craco start",
-    "build": "cross-env CI=false GENERATE_SOURCEMAP=false NODE_ENV=production craco build",
-    "test": "craco test",
+    "start": "node server.js",
+    "build": "react-scripts build",
+    "heroku-postbuild": "npm run build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
+  },
+  "engines": {
+    "node": "16.x",
+    "npm": "8.x"
   },
   "keywords": [],
   "author": "",
