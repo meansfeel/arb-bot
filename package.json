@@ -14,9 +14,11 @@
       "last 1 safari version"
     ]
   },
+  {
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "start": "node server.js",
+    "build": "react-scripts build",
+    "heroku-postbuild": "npm run build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
